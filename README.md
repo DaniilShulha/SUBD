@@ -39,7 +39,7 @@ CRUD со всеми сущностями системы:
 
 #### Перечень сущностей
 
-### 1. customer - пользователь
+### 1. user - пользователь
 
 #### Поля:
 - id (айди) - int
@@ -47,9 +47,11 @@ CRUD со всеми сущностями системы:
 - email (почта) - varchar
 - password (пароль) - varchar
 - country_id (идентификатор страны) - int, many-to-one relationship
+- role_id (айди роли) - int, many-to-one relationship
 
 #### Связи:
 - many-to-one с моделью country
+- many-to-one с моделью role
 
 ### 2. item - товар
 
@@ -161,4 +163,17 @@ CRUD со всеми сущностями системы:
 #### Связи:
 - many-to-one с моделью customers
 - many-to-one с моделью instruments
+
+### 11. order_status - статус заказа
+
+#### Поля:
+- id (айди) - int
+- status_name (название статуса) - varchar
+
+### 12. role
+
+#### Поля:
+- id (айди) - int
+- role_name (название роли) - varchar 
+
 
