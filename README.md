@@ -1,135 +1,164 @@
-## Библиотека
+## Система управления заказами в ресторане
 ### Функциональные требования
 #### Общие требования
 
 1. Регистрация пользователя
 2. Авторизация
-3. Просмотр, заказ и управление блюдами
-4. Оформление заказа на блюда
+3. Просмотр, заказ и управление музыкальными инструментами
+4. Оформление заказов
 5. Выдача счетов и управление платежами
 6. Система ролей (клиент, администратор, менеджер)
-7. Возможность оставить отзыв о блюдах
+7. Возможность оставить отзыв на инструмент
 8. Журналирование всех действий пользователей
 
 
 #### Клиент
 
 1. Авторизация и регистрация
-2. CRUD отзывов о блюдах
-3. CRUD заказов(оформить заказ, просмотр заказов, возврат заказа)
+2. CRUD отзывов об инструментах
+3. CRUD заказов (оформление заказа, просмотр заказов, возврат)
 4. Оплата заказов и управление платежами
-5. Изменение, удаление профиля
+5. Изменение и удаление профиля
 
 #### Менеджер
 
-1. Авторизация(регистрация по умолчанию должен быть в системе)
-2. CRUD заказов(изменение статусов, удаление заказов)
-3. Управление меню и блюдами
+1. Авторизация (регистрация по умолчанию не требуется)
+2. CRUD заказов (изменение статусов, удаление заказов)
+3. Управление инструментами и категориями товаров
 
 #### Администратор системы
 
 CRUD со всеми сущностями системы:
 1. Пользователь (клиент, менеджер, администратор)
-2. Блюдо
-3. Категория блюд
-4. Заказ
-5. Стол
-6. Оплата
-7. Отзывы
-8. Журнал действий
-9. Резервирование столов
-10. Кухня
+2. Музыкальные инструменты
+3. Категории товаров
+4. Заказы
+5. Платежи
+6. Отзывы
+7. Журнал действий
 
 #### Перечень сущностей
 
-### 1. users - пользователь
+### 1. customer - пользователь
 
 #### Поля:
-- first_name (имя) - varchar
-- last_name (фамилия) - varchar
-- password_hash (захешированный пароль) - varchar
+- id (айди) - int
+- customer_name (имя) - varchar
 - email (почта) - varchar
-- created_at (дата создания) TIMESTAMP DEFAULT NOW()
-- user_role (роль пользователя) - Enum('CLIENT', 'MANAGER', 'ADMINISTRATOR')
+- password (пароль) - varchar
+- country_id (идентификатор страны) - int, many-to-one relationship
 
-### 2. dishes - блюдо
+#### Связи:
+- many-to-one с моделью country
+
+### 2. item - товар
 
 #### Поля:
-- title (название) - varchar
+- id (айди) - int
+- instrument_id (идентификатор инструмента) - int, many-to-one relationship
+- serial_number (серийный номер) - varchar
 - description (описание) - text
+- year_of_production (год выпуска) - int
+- country_id (идентификатор страны) - int, many-to-one relationship
 - price (цена) - decimal
+
+#### Связи:
+- many-to-one с моделью instrument
+- many-to-one с моделью order_item
+
+### 3. categoory - категории
+
+#### Поля:
+- id (айди) - int
+- category_name (название категории) - varchar
+
+#### Связи:
+- one-to-many с моделью instrument
+
+### 4. instrument - музыкальный инструмент
+
+#### Поля:
+- id (айди) - int
+- instrument_name (название инструмента) - varchar
+- manufacturer_id (идентификатор производителя) - int, many-to-one relationship
 - category_id (идентификатор категории) - int, many-to-one relationship
+- description (описание) - text
 
 #### Связи:
-- many-to-one с моделью categories
+- many-to-one с моделью category
+- many-to-one с моделью manufacturer
 
-### 3. categoories - категории
-
-#### Поля:
-- name (название) - varchar
-
-### 4. orders - заказ
+### 5. manufacturer - производитель
 
 #### Поля:
-- user_id (идентификатор пользователя) - int, many-to-one relationship
-- status (статус) - ENUM('NEW', 'IN_PROCESS', 'COMPLETED', 'CANCELLED')
+- id (айди) - int
+- name (название производителя) - varchar
+- country_id (идентификатор страны) - int, many-to-one relationship
+
+#### Связи:
+- many-to-one с моделью country
+
+### 6. country - страна
+
+#### Поля:
+- id (айди) - int
+- country_name (название страны) - varchar
+
+### 7. customer_order - заказ
+
+#### Поля:
+- id (айди) - int
+- customer_id (идентификатор клиента) - int, many-to-one relationship
+- delivery_address (адрес доставки) - varchar
+- order_time (время заказа) - TIMESTAMP
+- preferred_delivery_time (предпочтительное время доставки) - TIMESTAMP
+- order_status_id (идентификатор статуса заказа) - int, many-to-one relationship
+- time_paid (время оплаты) - TIMESTAMP, nullable
+- time_canceled (время отмены) - TIMESTAMP, nullable
+- time_completed (время завершения) - TIMESTAMP, nullable
 - total_price (общая сумма) - decimal
-- created_at (дата создания) - TIMESTAMP DEFAULT NOW()
+- discount (скидка) - decimal
+- active (активность) - boolean
 
 #### Связи:
-- many-to-one с моделью users
+- many-to-one с моделью customer
+- many-to-one с моделью order_status
 
-### 5. tables - столы
-
-#### Поля:
-- number (номер стола) - int
-- capacity (вместимость) - int 
-- is_reserved (занят или нет) - boolean
-
-### 6. payments - платежи
+### 8. order_item - элементы заказа
 
 #### Поля:
-- order_id (идентификатор заказа) - int, many-to-one relationship
-- amount (сумма) - decimal
-- payment_date (дата платежа) - TIMESTAMP
+- id (айди) - int
+- customer_order_id (идентификатор заказа) - int, many-to-one relationship
+- item_id (идентификатор товара) - int, many-to-one relationship
+- price (цена) - decimal
 
 #### Связи:
-- many-to-one с моделью orders
+- many-to-one с моделью item
+- many-to-one с моделью customer_order
 
-### 7. feedbacks - отзывы
+### 9. payment - платеж
 
 #### Поля:
-- user_id (идентификатор пользователя) - int, many-to-one relationship
-- dish_id (идентификатор блюда) - int, many-to-one relationship
+- id (айди) - int
+- sorder_id (идентификатор заказа) - int, many-to-one relationship
+- payment_method (способ оплаты) - varchar
+- payment_status (статус оплаты) - varchar
+- payment_date (дата оплаты) - TIMESTAMP
+
+#### Связи:
+- many-to-one с моделью customer_orders
+
+
+### 10. review - отзыв
+
+#### Поля:
+- id (айди) - int
+- customer_id (идентификатор клиента) - int, many-to-one relationship
+- instrument_id (идентификатор инструмента) - int, many-to-one relationship
 - description (описание) - text
 - rating (оценка) - int
 
 #### Связи:
-- many-to-one с моделью users
-- many-to-one с моделью dishes
+- many-to-one с моделью customers
+- many-to-one с моделью instruments
 
-### 8. action_logs - журнал действий
-
-#### Поля:
-- user_id (идентификатор пользователя) - int, many-to-one relationship
-- action (действие) - varchar
-- timestamp (время действия) - TIMESTAMP
-
-#### Связи:
-- many-to-one с моделью users
-
-### 9. reservations - резервирование
-
-#### Поля:
-- table_id (идентификатор стола) - int, many-to-one relationship
-- user_id (идентификатор пользователя) - int, many-to-one relationship
-- reservation_time (время резервирования) - TIMESTAMP
-
-#### Связи:
-- many-to-one с моделью tables
-- many-to-one с моделью users
-
-### 10. kitchens - кухня
-
-#### Поля:
-- name (название) - varchar
